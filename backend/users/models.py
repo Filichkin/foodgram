@@ -6,7 +6,6 @@ from foodgram.constants import (
     EMAIL_MAX_LENGTH,
     FIRST_NAME_MAX_LENGTH,
     LAST_NAME_MAX_LENGTH,
-    PASSWORD_MIN_LENGTH,
     USERNAME_MAX_LENGTH
 )
 
@@ -37,9 +36,7 @@ class User(AbstractUser):
     last_name = models.CharField(
         max_length=LAST_NAME_MAX_LENGTH,
     )
-    password = models.CharField(
-        min_length=PASSWORD_MIN_LENGTH,
-    )
+    password = models.CharField()
     avatar = models.ImageField(
         blank=True,
         null=True,
@@ -60,7 +57,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-    
+
 
 class Follow(models.Model):
     user = models.ForeignKey(

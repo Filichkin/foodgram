@@ -1,10 +1,9 @@
-from django.core.exceptions import ValidationError
 from django.db.models import Sum
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
 from djoser.views import UserViewSet
-from django.views.decorators.http import require_GET
+import pyshorteners
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -13,7 +12,6 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly
 )
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomLimitPagination
@@ -169,10 +167,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name='get-link',
     )
     def get_link(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, pk=pk)
-        rev_link = reverse('short_url', args=[recipe.pk])
-        return Response({'short-link': request.build_absolute_uri(rev_link)},
-                        status=status.HTTP_200_OK,)
+        _ = get_object_or_404(Recipe, pk=pk)
+        original_link = request.build_absolute_uri(f'/recipes/{pk}/')
+        s = pyshorteners.Shortener()
+        short_link = s.tinyurl.short(original_link)
+        return Response({'short-link': short_link}, status=status.HTTP_200_OK)
 
     @action(
         detail=True,
@@ -267,12 +266,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'detail': f'Recipe "{recipe.name}" is not in favorites.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-
-@require_GET
-def short_url(request, pk):
-    try:
-        Recipe.objects.filter(pk=pk).exists()
-        return redirect(f'/recipes/{pk}/')
-    except Exception:
-        raise ValidationError(f'Recipe "{pk}" does not exist.')

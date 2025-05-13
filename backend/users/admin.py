@@ -14,6 +14,7 @@ class UserAdmin(UserAdmin):
         'last_name',
     )
     list_filter = ('email', 'username')
+    search_fields = ('email', 'username',)
     empty_value_display = '-empty-'
 
 

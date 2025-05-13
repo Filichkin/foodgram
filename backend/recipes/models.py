@@ -124,6 +124,11 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
+    def favorite_count(self):
+        return self.favorite.count()
+
+    favorite_count.short_description = 'Count of favorites recipes'
+
 
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(

@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
 from djoser.views import UserViewSet
-import pyshorteners
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -168,10 +167,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def get_link(self, request, pk=None):
         _ = get_object_or_404(Recipe, pk=pk)
-        original_link = request.build_absolute_uri(f'/recipes/{pk}/')
-        s = pyshorteners.Shortener()
-        short_link = s.tinyurl.short(original_link)
-        return Response({'short-link': short_link}, status=status.HTTP_200_OK)
+        url = request.build_absolute_uri(f'/recipes/{pk}/')
+        return Response({'short-link': url}, status=status.HTTP_200_OK)
 
     @action(
         detail=True,

@@ -105,6 +105,7 @@ MEDIA_ROOT = '/backend_media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CSRF_TRUSTED_ORIGINS = ['https://*.foodgram.serveirc.com']
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

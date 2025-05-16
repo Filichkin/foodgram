@@ -73,3 +73,4 @@ docker compose exec backend python manage.py csv_upload
 - `DB_PORT` — порт для подключения к базе данных.
 - `ALLOWED_HOSTS` — список доступных хостов.
 - `DEBUG` — статус отладки Django.
+- `CSRF_TRUSTED_ORIGINS` — список доменов от которых Django будет доверять incoming requests с CSRF-токенами.

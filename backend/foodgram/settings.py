@@ -105,7 +105,7 @@ MEDIA_ROOT = '/backend_media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'https://*.example.com')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', None)
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

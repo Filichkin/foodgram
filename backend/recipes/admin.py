@@ -5,7 +5,7 @@ from recipes.models import Ingredient, Recipe, Tag
 
 
 class RecipeIngredientsInLine(admin.TabularInline):
-    model = Recipe.ingredients.through
+    model = Recipe.ingredients_list.through
     extra = INLINE_EXTRA
 
 

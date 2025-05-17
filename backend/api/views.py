@@ -17,7 +17,7 @@ from api.pagination import CustomLimitPagination
 from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers import (
     AvatarSerializer,
-    CustomUserSerializer,
+    UserSerializer,
     FavoriteRecipeSerializer,
     IngredientSerializer,
     RecipeReadSerializer,
@@ -37,16 +37,16 @@ from recipes.models import (
 from users.models import Follow, User
 
 
-class CustomUserViewSet(UserViewSet):
+class UserViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomLimitPagination
 
-    @action(['get'], detail=False, permission_classes=(IsAuthenticated,))
-    def me(self, request, *args, **kwargs):
-        self.get_object = self.get_instance
-        return self.retrieve(request, *args, **kwargs)
+    def get_permissions(self):
+        if self.action == 'me':
+            return (IsAuthenticated(),)
+        return super().get_permissions()
 
     @action(
         ['put'],

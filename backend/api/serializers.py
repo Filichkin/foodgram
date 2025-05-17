@@ -1,7 +1,6 @@
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from api.fields import Base64ImageField
 from foodgram.constants import PAGE_SIZE
 from recipes.models import (
     Favorite,
@@ -15,10 +14,10 @@ from recipes.models import (
 from users.models import Follow, User
 
 
-class CustomUserSerializer(UserSerializer):
+class UserSerializer(serializers.ModelSerializer):
 
     is_subscribed = serializers.SerializerMethodField()
-    avatar = Base64ImageField(allow_null=True, required=False)
+    avatar = Base64ImageField(required=False)
 
     class Meta:
         model = User
@@ -39,23 +38,8 @@ class CustomUserSerializer(UserSerializer):
         return request.user.subscriptions.filter(author=obj).exists()
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
-    password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = (
-            'id',
-            'email',
-            'username',
-            'first_name',
-            'last_name',
-            'password',
-        )
-
-
 class AvatarSerializer(serializers.ModelSerializer):
-    avatar = Base64ImageField(allow_null=True)
+    avatar = Base64ImageField(required=False)
 
     class Meta:
         model = User
@@ -105,7 +89,7 @@ class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
 class RecipeReadSerializer(serializers.ModelSerializer):
 
     tags = TagSerializer(many=True)
-    author = CustomUserSerializer()
+    author = UserSerializer()
     ingredients = RecipeIngredientSerializer(
         source='ingredient_list',
         many=True
@@ -156,10 +140,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         many=True,
         label='Ingredients',
     )
-    image = Base64ImageField(
-        allow_null=True,
-        label='images'
-    )
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -307,11 +288,14 @@ class SubscriberSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return SubscriberDetailSerializer(instance, context=self.context).data
 
-    def validate_author(self, value):
-        if self.context['request'].user == value:
+    def validate(self, data):
+        request = self.context.get('request')
+        author = data['author']
+        if request.user == author:
             raise serializers.ValidationError(
-                'You cannot follow yourself')
-        return value
+                "You can't (un)subscribe to yourself"
+            )
+        return data
 
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):

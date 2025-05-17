@@ -1,9 +1,9 @@
-from django_filters.rest_framework import FilterSet, filters
+from django_filters.rest_framework import FilterSet, filters, SearchFilter
 
 from recipes.models import Ingredient, Recipe, Tag
 
 
-class IngredientFilter(FilterSet):
+class IngredientFilter(SearchFilter):
     name = filters.CharFilter(
         field_name='name',
         lookup_expr='istartswith')

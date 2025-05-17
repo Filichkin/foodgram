@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from foodgram.constants import INLINE_EXTRA
-from recipes.models import Ingredient, Recipe, Tag
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
 class RecipeIngredientsInLine(admin.TabularInline):
@@ -10,7 +10,7 @@ class RecipeIngredientsInLine(admin.TabularInline):
 
 
 class RecipeTagsInLine(admin.TabularInline):
-    model = Recipe.tags.through
+    model = RecipeIngredient
     extra = INLINE_EXTRA
 
 

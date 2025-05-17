@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 from foodgram.constants import (
@@ -14,13 +14,7 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=USERNAME_MAX_LENGTH,
         unique=True,
-        blank=False,
-        null=False,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+$',
-            message='Username contains restricted symbols. Please use only '
-                    'letters, numbers and .@+- symbols',
-        ), ],
+        validators=(UnicodeUsernameValidator(),),
         verbose_name='Unique username',
     )
     email = models.EmailField(
@@ -36,7 +30,6 @@ class User(AbstractUser):
     last_name = models.CharField(
         max_length=LAST_NAME_MAX_LENGTH,
     )
-    password = models.CharField()
     avatar = models.ImageField(
         blank=True,
         null=True,
@@ -47,7 +40,6 @@ class User(AbstractUser):
         'username',
         'first_name',
         'last_name',
-        'password',
     )
 
     class Meta:

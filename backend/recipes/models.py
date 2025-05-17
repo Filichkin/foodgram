@@ -1,4 +1,4 @@
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from foodgram.constants import (
@@ -44,19 +44,13 @@ class Ingredient(models.Model):
 class Tag(models.Model):
     name = models.CharField(
         max_length=TAG_NAME_MAX_LENGTH,
+        unique=True,
         verbose_name='Tag name',
         help_text='Tag name',
     )
     slug = models.SlugField(
         max_length=TAG_SLUG_MAX_LENGTH,
         unique=True,
-        validators=[
-            RegexValidator(
-                regex=r'^[-a-zA-Z0-9_]+$',
-                message='Slug contains restricted symbols. Please use only '
-                        'letters, numbers and _ symbol',
-            ),
-        ],
         verbose_name='Tag slug',
         help_text='Tag slug',
     )
@@ -79,14 +73,7 @@ class Recipe(models.Model):
         verbose_name='Recipe description',
         help_text='Recipe description',
     )
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        blank=False,
-        through='RecipeIngredient',
-        related_name='recipes',
-        verbose_name='Recipe ingredients',
-        help_text='Recipe ingredients',
-    )
+
     cooking_time = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(
             COOKING_TIME_MIN,
@@ -123,11 +110,6 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
-
-    def favorite_count(self):
-        return self.favorite.count()
-
-    favorite_count.short_description = 'Count of favorites recipes'
 
 
 class RecipeIngredient(models.Model):
@@ -184,12 +166,16 @@ class RecipeTags(models.Model):
         ordering = ('-id',)
         verbose_name = 'Recipe tag'
         verbose_name_plural = 'Recipe tags'
+        constraints = [
+            models.UniqueConstraint(fields=('recipe', 'tag'),
+                                    name='unique_recipe_tag_set')
+        ]
 
     def __str__(self):
         return f'Recipe {self.recipe} has tag {self.tag}'
 
 
-class Favorite(models.Model):
+class UserRecipeBaseModel(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -204,47 +190,28 @@ class Favorite(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        abstract = True
+        ordering = ('-id',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='%(app_label)s_%(class)s_unique'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.recipe} | {self.user}'
+
+
+class Favorite(UserRecipeBaseModel):
+
+    class Meta:
         verbose_name = 'Favorite'
         verbose_name_plural = 'Favorites'
 
-        constraints = (
-            models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_favorite_recipe'
-            ),
-        )
 
-    def __str__(self):
-        return f'Recipe {self.recipe} is among favorites of user {self.user}'
-
-
-class ShoppingList(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='shopping_list',
-        verbose_name='User',
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='shopping_list',
-        verbose_name='Recipe',
-    )
+class ShoppingList(UserRecipeBaseModel):
 
     class Meta:
         verbose_name = 'Shopping list'
         verbose_name_plural = 'Shopping lists'
-
-        constraints = (
-            models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_shopping_list_recipe'
-            ),
-        )
-
-    def __str__(self):
-        return (
-            f'Recipe {self.recipe} is in shopping list of user {self.user}'
-        )

@@ -29,6 +29,11 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientsInLine, RecipeTagsInLine)
     empty_value_display = '-empty-'
 
+    def favorite_count(self, recipe: Recipe):
+        return recipe.favorite.count()
+
+    favorite_count.short_description = 'Count of favorites recipes'
+
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):

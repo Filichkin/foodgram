@@ -179,13 +179,11 @@ class UserRecipeBaseModel(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorite',
         verbose_name='Favorite user',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorite',
         verbose_name='Favorite recipe',
     )
 
@@ -206,14 +204,27 @@ class UserRecipeBaseModel(models.Model):
 class Favorite(UserRecipeBaseModel):
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Favorite'
         verbose_name_plural = 'Favorites'
-        default_related_name = 'favorites'
+        default_related_name = 'favorite'
 
 
-class ShoppingList(UserRecipeBaseModel):
+class ShoppingList(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_list',
+        verbose_name='User',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='shopping_list',
+        verbose_name='Recipe',
+    )
 
     class Meta:
         verbose_name = 'Shopping list'
         verbose_name_plural = 'Shopping lists'
-        default_related_name = 'shopping_carts'
+        default_related_name = 'shopping_list'

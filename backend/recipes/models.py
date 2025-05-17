@@ -208,6 +208,7 @@ class Favorite(UserRecipeBaseModel):
     class Meta:
         verbose_name = 'Favorite'
         verbose_name_plural = 'Favorites'
+        default_related_name = 'favorites'
 
 
 class ShoppingList(UserRecipeBaseModel):
@@ -215,3 +216,4 @@ class ShoppingList(UserRecipeBaseModel):
     class Meta:
         verbose_name = 'Shopping list'
         verbose_name_plural = 'Shopping lists'
+        default_related_name = 'shopping_carts'

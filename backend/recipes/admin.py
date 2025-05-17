@@ -5,12 +5,12 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
 class RecipeIngredientsInLine(admin.TabularInline):
-    model = Recipe.ingredient_list
+    model = RecipeIngredient
     extra = INLINE_EXTRA
 
 
 class RecipeTagsInLine(admin.TabularInline):
-    model = RecipeIngredient
+    model = Recipe.tags.through
     extra = INLINE_EXTRA
 
 

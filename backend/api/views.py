@@ -163,8 +163,8 @@ class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(ShoppingList, request, pk)
-        return self.delete_from(ShoppingList, request, pk)
+            return self.add_to(ShoppingList, request.user, pk)
+        return self.delete_from(ShoppingList, request.user, pk)
 
     @staticmethod
     def shopping_list_to_txt(ingredients):
@@ -200,5 +200,5 @@ class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Favorite, request, pk)
-        return self.delete_from(Favorite, request, pk)
+            return self.add_to(Favorite, request.user, pk)
+        return self.delete_from(Favorite, request.user, pk)

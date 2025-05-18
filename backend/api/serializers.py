@@ -12,7 +12,8 @@ from recipes.models import (
     ShoppingList,
     Tag
 )
-from users.models import Follow, User, UserRecipeBaseModel
+from recipes.models import UserRecipeBaseModel
+from users.models import Follow, User
 
 
 class UserSerializer(serializers.ModelSerializer):

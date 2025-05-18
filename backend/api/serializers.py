@@ -316,7 +316,7 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         recipe_id = (
             self.context.get('request').parser_context.get('kwargs').get('id')
         )
-        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        recipe = get_object_or_404(Recipe, id=recipe_id)
         if ShoppingList.objects.filter(
             recipe=recipe,
             user=request.user

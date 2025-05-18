@@ -161,10 +161,10 @@ class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
         url_path='shopping_cart',
         url_name='shopping_cart',
     )
-    def shopping_cart(self, request, pk):
+    def shopping_cart(self, request, id):
         if request.method == 'POST':
-            return self.add_to(ShoppingList, request, pk)
-        return self.delete_from(ShoppingList, request, pk)
+            return self.add_to(ShoppingList, request, id)
+        return self.delete_from(ShoppingList, request, id)
 
     @staticmethod
     def shopping_list_to_txt(ingredients):
@@ -198,7 +198,7 @@ class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
         url_path='favorite',
         url_name='favorite',
     )
-    def favorite(self, request, pk):
+    def favorite(self, request, id):
         if request.method == 'POST':
-            return self.add_to(Favorite, request, pk)
-        return self.delete_from(Favorite, request, pk)
+            return self.add_to(Favorite, request, id)
+        return self.delete_from(Favorite, request, id)

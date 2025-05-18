@@ -13,7 +13,10 @@ from recipes.models import (
     Tag
 )
 from recipes.models import UserRecipeBaseModel
-from users.models import Follow, User
+from users.models import (
+    Follow,
+    User
+)
 
 
 class UserSerializer(serializers.ModelSerializer):

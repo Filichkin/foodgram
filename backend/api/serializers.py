@@ -292,7 +292,7 @@ class SubscriberSerializer(serializers.ModelSerializer):
     def validate(self, data):
         request = self.context.get('request')
         author_id = (
-            self.context.get('request').parser_context.get('kwargs').get('pk')
+            self.context.get('request').parser_context.get('kwargs').get('id')
         )
         author = get_object_or_404(User, pk=author_id)
         if request.user == author:

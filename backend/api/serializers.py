@@ -287,9 +287,6 @@ class SubscriberSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['user', 'author']
 
-    def to_representation(self, instance):
-        return SubscriberDetailSerializer(instance, context=self.context).data
-
     def validate(self, data):
         request = self.context.get('request')
         author_id = (
@@ -313,6 +310,7 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = ['user', 'recipe']
 
     def validate(self, data):
         request = self.context.get('request')

@@ -13,12 +13,12 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 
 from api.filters import IngredientFilter, RecipeFilter
+from api.mixins import AddDeleteMixin
 from api.pagination import CustomLimitPagination
 from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers import (
     AvatarSerializer,
     UserSerializer,
-    FavoriteRecipeSerializer,
     IngredientSerializer,
     RecipeReadSerializer,
     RecipeWriteSerializer,
@@ -105,12 +105,13 @@ class UserViewSet(UserViewSet):
             Follow.objects.create(author=author, user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        elif self.request.method == 'DELETE':
+        if self.request.method == 'DELETE':
             subscription = get_object_or_404(
                 Follow, user=user, author=author
             )
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -129,7 +130,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ('^name',)
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
     permission_classes = (IsAdminAuthorOrReadOnly,)
     queryset = Recipe.objects.all()
     pagination_class = CustomLimitPagination
@@ -161,21 +162,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name='shopping_cart',
     )
     def shopping_cart(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            serializer = FavoriteRecipeSerializer(
-                recipe,
-                data=request.data,
-                context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            ShoppingList.objects.create(recipe=recipe, user=user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE':
-            cart_item = ShoppingList.objects.filter(recipe__id=pk, user=user)
-            cart_item.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return self.add_to(ShoppingList, request, pk)
+        return self.delete_from(ShoppingList, request, pk)
 
     @staticmethod
     def shopping_list_to_txt(ingredients):
@@ -210,22 +199,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name='favorite',
     )
     def favorite(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            serializer = FavoriteRecipeSerializer(
-                recipe,
-                data=request.data,
-                context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            Favorite.objects.create(recipe=recipe, user=user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE':
-            favorite_item = get_object_or_404(
-                Favorite,
-                user=request.user,
-                recipe=get_object_or_404(Recipe, id=pk)
-            )
-            favorite_item.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return self.add_to(Favorite, request, pk)
+        return self.delete_from(Favorite, request, pk)

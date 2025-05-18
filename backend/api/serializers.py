@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -290,7 +291,10 @@ class SubscriberSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        author = data['author']
+        author_id = (
+            self.context.get('request').parser_context.get('kwargs').get('pk')
+        )
+        author = get_object_or_404(User, pk=author_id)
         if request.user == author:
             raise serializers.ValidationError(
                 "You can't (un)subscribe to yourself"
@@ -298,13 +302,6 @@ class SubscriberSerializer(serializers.ModelSerializer):
         if Follow.objects.filter(user=request.user, author=author).exists():
             raise serializers.ValidationError(
                 'You already follow this user'
-            )
-        if not Follow.objects.filter(
-            user=request.user,
-            author=author
-        ).exists():
-            raise serializers.ValidationError(
-                'You are not subscribed to this user'
             )
         return data
 
@@ -318,7 +315,10 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        recipe = data['recipe']
+        recipe_pk = (
+            self.context.get('request').parser_context.get('kwargs').get('pk')
+        )
+        recipe = get_object_or_404(Recipe, pk=recipe_pk)
         if ShoppingList.objects.filter(
             recipe=recipe,
             user=request.user
@@ -335,3 +335,4 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
                 f'Recipe "{recipe.name}" was already added '
                 'to favorites.'
             )
+        return data

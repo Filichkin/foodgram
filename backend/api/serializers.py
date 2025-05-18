@@ -295,6 +295,17 @@ class SubscriberSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "You can't (un)subscribe to yourself"
             )
+        if Follow.objects.filter(user=request.user, author=author).exists():
+            raise serializers.ValidationError(
+                'You already follow this user'
+            )
+        if not Follow.objects.filter(
+            user=request.user,
+            author=author
+        ).exists():
+            raise serializers.ValidationError(
+                'You are not subscribed to this user'
+            )
         return data
 
 
@@ -304,3 +315,23 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        recipe = data['recipe']
+        if ShoppingList.objects.filter(
+            recipe=recipe,
+            user=request.user
+        ).exists():
+            raise serializers.ValidationError(
+                f'Recipe "{recipe.name}" was already added '
+                'to shopping list.'
+            )
+        if Favorite.objects.filter(
+            recipe=recipe,
+            user=request.user
+        ).exists():
+            raise serializers.ValidationError(
+                f'Recipe "{recipe.name}" was already added '
+                'to favorites.'
+            )

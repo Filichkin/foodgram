@@ -95,34 +95,17 @@ class UserViewSet(UserViewSet):
         user = request.user
         author = get_object_or_404(User, id=id)
 
-        if user == author:
-            return Response(
-                {'errors': "You can't (un)subscribe to yourself"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         if self.request.method == 'POST':
-            if Follow.objects.filter(user=user, author=author).exists():
-                return Response(
-                    {'errors': 'You already follow this user'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            queryset = Follow.objects.create(author=author, user=user)
             serializer = SubscriberSerializer(
-                queryset, context={'request': request}
+                author,
+                data=request.data,
+                context={'request': request}
             )
+            serializer.is_valid(raise_exception=True)
+            Follow.objects.create(author=author, user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif self.request.method == 'DELETE':
-            if not Follow.objects.filter(
-                    user=user, author=author
-            ).exists():
-                return Response(
-                    {'errors': 'You are not subscribed to this user'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             subscription = get_object_or_404(
                 Follow, user=user, author=author
             )
@@ -181,30 +164,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            if ShoppingList.objects.filter(recipe=recipe, user=user).exists():
-                return Response(
-                    {
-                        'detail': f'Recipe "{recipe.name}" was already added '
-                                  'to shopping list.'
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            ShoppingList.objects.create(recipe=recipe, user=user)
             serializer = FavoriteRecipeSerializer(
-                recipe, context={'request': request})
+                recipe,
+                data=request.data,
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            ShoppingList.objects.create(recipe=recipe, user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
             cart_item = ShoppingList.objects.filter(recipe__id=pk, user=user)
-            if cart_item.exists():
-                cart_item.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                {
-                    'detail': f'Recipe "{recipe.name}" is missing '
-                              'in shopping list.'
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            cart_item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
     def shopping_list_to_txt(ingredients):
@@ -242,24 +213,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            if Favorite.objects.filter(recipe=recipe,
-                                       user=user).exists():
-                return Response(
-                    {'detail': f'Recipe "{recipe.name}" was already added '
-                               'to favorites.'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            Favorite.objects.create(recipe=recipe, user=user)
             serializer = FavoriteRecipeSerializer(
-                recipe, context={'request': request})
+                recipe,
+                data=request.data,
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            Favorite.objects.create(recipe=recipe, user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
-            favorite_entry = Favorite.objects.filter(
-                recipe=recipe, user=user)
-            if favorite_entry.exists():
-                favorite_entry.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                {'detail': f'Recipe "{recipe.name}" is not in favorites.'},
-                status=status.HTTP_400_BAD_REQUEST,
+            favorite_item = get_object_or_404(
+                Favorite,
+                user=request.user,
+                recipe=get_object_or_404(Recipe, id=pk)
             )
+            favorite_item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)

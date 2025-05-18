@@ -18,13 +18,15 @@ from api.pagination import CustomLimitPagination
 from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers import (
     AvatarSerializer,
-    UserSerializer,
+    FavoriteCreateSerializer,
     IngredientSerializer,
     RecipeReadSerializer,
     RecipeWriteSerializer,
+    ShoppingCartCreateSerializer,
     SubscriberSerializer,
     SubscriberDetailSerializer,
     TagSerializer,
+    UserSerializer,
 )
 from recipes.models import (
     Favorite,
@@ -130,7 +132,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ('^name',)
 
 
-class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
+class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminAuthorOrReadOnly,)
     queryset = Recipe.objects.all()
     pagination_class = CustomLimitPagination
@@ -141,6 +143,22 @@ class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
         if self.action in ('list', 'retrieve', 'get-link'):
             return RecipeReadSerializer
         return RecipeWriteSerializer
+
+    @staticmethod
+    def add_to(serializer_class, request, id):
+        serializer = serializer_class(
+            data={'user': request.user.id, 'recipe': id},
+            context={'request': request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @staticmethod
+    def delete_from(model, request, id):
+        obj = model.objects.filter(user=request.user, recipe__id=id)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=True,
@@ -163,8 +181,8 @@ class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(ShoppingList, request.user, pk)
-        return self.delete_from(ShoppingList, request.user, pk)
+            return self.add_to(ShoppingCartCreateSerializer, request, pk)
+        return self.delete_from(ShoppingList, request, pk)
 
     @staticmethod
     def shopping_list_to_txt(ingredients):
@@ -200,5 +218,5 @@ class RecipeViewSet(viewsets.ModelViewSet, AddDeleteMixin):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Favorite, request.user, pk)
-        return self.delete_from(Favorite, request.user, pk)
+            return self.add_to(FavoriteCreateSerializer, request, pk)
+        return self.delete_from(Favorite, request, pk)

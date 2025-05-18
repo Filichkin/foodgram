@@ -12,7 +12,7 @@ from recipes.models import (
     ShoppingList,
     Tag
 )
-from users.models import Follow, User
+from users.models import Follow, User, UserRecipeBaseModel
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -228,6 +228,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -334,3 +335,38 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
                 'to favorites.'
             )
         return data
+
+
+class UserRecipeDependenceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserRecipeBaseModel
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        user_id = data.get('user').id
+        recipe_id = data.get('recipe').id
+        if self.Meta.model.objects.filter(user=user_id,
+                                          recipe=recipe_id).exists():
+            raise serializers.ValidationError(
+                'Recipe was already added'
+            )
+        return data
+
+    def to_representation(self, instance):
+        serializer = ShortRecipeSerializer(
+            instance.recipe, context=self.context
+        )
+        return serializer.data
+
+
+class FavoriteCreateSerializer(UserRecipeDependenceSerializer):
+
+    class Meta(UserRecipeDependenceSerializer.Meta):
+        model = Favorite
+
+
+class ShoppingCartCreateSerializer(UserRecipeDependenceSerializer):
+
+    class Meta(UserRecipeDependenceSerializer.Meta):
+        model = ShoppingList

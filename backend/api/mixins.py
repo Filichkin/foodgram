@@ -10,11 +10,7 @@ from api.serializers import FavoriteRecipeSerializer
 class AddDeleteMixin:
     def add_to(self, model, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
-        serializer = FavoriteRecipeSerializer(
-            recipe,
-            data=request.data,
-            context={'request': request}
-        )
+        serializer = FavoriteRecipeSerializer(recipe)
         serializer.is_valid(raise_exception=True)
         model.objects.create(user=request.user, recipe=recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

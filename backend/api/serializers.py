@@ -285,6 +285,7 @@ class SubscriberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = '__all__'
+        read_only_fields = ['user', 'author']
 
     def to_representation(self, instance):
         return SubscriberDetailSerializer(instance, context=self.context).data

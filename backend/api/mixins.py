@@ -11,7 +11,6 @@ class AddDeleteMixin:
     def add_to(self, model, user, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         serializer = FavoriteRecipeSerializer(recipe)
-        serializer.is_valid(raise_exception=True)
         model.objects.create(user=user, recipe=recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

@@ -314,10 +314,10 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        recipe_pk = (
-            self.context.get('request').parser_context.get('kwargs').get('pk')
+        recipe_id = (
+            self.context.get('request').parser_context.get('kwargs').get('id')
         )
-        recipe = get_object_or_404(Recipe, pk=recipe_pk)
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
         if ShoppingList.objects.filter(
             recipe=recipe,
             user=request.user

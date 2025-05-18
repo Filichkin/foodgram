@@ -13,7 +13,6 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 
 from api.filters import IngredientFilter, RecipeFilter
-from api.mixins import AddDeleteMixin
 from api.pagination import CustomLimitPagination
 from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers import (

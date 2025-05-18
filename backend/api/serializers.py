@@ -294,7 +294,7 @@ class SubscriberSerializer(serializers.ModelSerializer):
         author_id = (
             self.context.get('request').parser_context.get('kwargs').get('id')
         )
-        author = get_object_or_404(User, pk=author_id)
+        author = get_object_or_404(User, id=author_id)
         if request.user == author:
             raise serializers.ValidationError(
                 "You can't (un)subscribe to yourself"

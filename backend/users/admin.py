@@ -1,13 +1,21 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from users.forms import UserCreationForm
 from users.models import Follow, User
 
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
-    add_form = UserCreationForm
+    add_fieldsets = (
+        (
+            None,
+            {'fields': (
+                'first_name',
+                'last_name'
+            )
+            }
+        ),
+    )
     list_display = (
         'username',
         'id',

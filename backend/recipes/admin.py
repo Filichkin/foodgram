@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 
 from foodgram.constants import INLINE_EXTRA
@@ -21,6 +22,30 @@ class IngredientAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
 
 
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'slug')
+    search_fields = ('name',)
+    empty_value_display = '-empty-'
+
+
+class RecipeAdminForm(forms.ModelForm):
+    class Meta:
+        model = Recipe
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        ingredients = cleaned_data.get('ingredients')
+        tags = cleaned_data.get('tags')
+        if not ingredients or ingredients.count() == 0:
+            raise forms.ValidationError(
+                'Please add ingredients')
+        if not tags or tags.count() == 0:
+            raise forms.ValidationError(
+                'Please add tags')
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'text', 'author', 'favorite_count')
@@ -33,10 +58,3 @@ class RecipeAdmin(admin.ModelAdmin):
         return recipe.favorite.count()
 
     favorite_count.short_description = 'Count of favorites recipes'
-
-
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'slug')
-    search_fields = ('name',)
-    empty_value_display = '-empty-'

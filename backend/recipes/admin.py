@@ -1,5 +1,5 @@
-from django import forms
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 
 from foodgram.constants import INLINE_EXTRA
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
@@ -8,6 +8,13 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 class RecipeIngredientsInLine(admin.TabularInline):
     model = RecipeIngredient
     extra = INLINE_EXTRA
+
+    def save_model(self, request, obj, form, change):
+        if not obj.ingredient.exists() or not obj.tags.exists():
+            raise ValidationError(
+                'Please add ingredients and tags'
+            )
+        super().save_model(request, obj, form, change)
 
 
 class RecipeTagsInLine(admin.TabularInline):
@@ -27,23 +34,6 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug')
     search_fields = ('name',)
     empty_value_display = '-empty-'
-
-
-class RecipeAdminForm(forms.ModelForm):
-    class Meta:
-        model = Recipe
-        fields = '__all__'
-
-    def clean(self):
-        cleaned_data = super().clean()
-        ingredients = cleaned_data.get('ingredients')
-        tags = cleaned_data.get('tags')
-        if not ingredients or ingredients.count() == 0:
-            raise forms.ValidationError(
-                'Please add ingredients')
-        if not tags or tags.count() == 0:
-            raise forms.ValidationError(
-                'Please add tags')
 
 
 @admin.register(Recipe)

@@ -10,8 +10,8 @@ class UserAdmin(UserAdmin):
         (
             None,
             {'fields': (
-                'first_name',
-                'last_name'
+                'email', 'username', 'first_name',
+                'last_name', 'password1', 'password2'
             )
             }
         ),

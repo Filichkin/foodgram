@@ -8,18 +8,13 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 class RecipeIngredientsInLine(admin.TabularInline):
     model = RecipeIngredient
     extra = INLINE_EXTRA
-
-    def save_model(self, request, obj, form, change):
-        if not obj.ingredient.exists() or not obj.tags.exists():
-            raise ValidationError(
-                'Please add ingredients and tags'
-            )
-        super().save_model(request, obj, form, change)
+    min_num = 1
 
 
 class RecipeTagsInLine(admin.TabularInline):
     model = Recipe.tags.through
     extra = INLINE_EXTRA
+    min_num = 1
 
 
 @admin.register(Ingredient)

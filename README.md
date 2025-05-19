@@ -76,3 +76,5 @@ docker compose exec backend python manage.py csv_upload
 - `CSRF_TRUSTED_ORIGINS` — список доменов от которых Django будет доверять incoming requests с CSRF-токенами.
 
 
+
+

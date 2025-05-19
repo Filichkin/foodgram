@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.core.exceptions import ValidationError
 
 from foodgram.constants import INLINE_EXTRA
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag

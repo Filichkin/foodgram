@@ -83,7 +83,6 @@ class Recipe(models.Model):
         help_text='Cooking time in minutes',
     )
     image = models.ImageField(
-        blank=False,
         verbose_name='Recipe image',
         help_text='Recipe image',
         upload_to='media/recipes/',
@@ -96,7 +95,6 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
-        blank=False,
         through='RecipeTags',
         related_name='recipes',
         verbose_name='Recipe tags',
@@ -203,28 +201,16 @@ class UserRecipeBaseModel(models.Model):
 
 class Favorite(UserRecipeBaseModel):
 
-    class Meta:
+    class Meta(UserRecipeBaseModel.Meta):
         ordering = ['-id']
         verbose_name = 'Favorite'
         verbose_name_plural = 'Favorites'
         default_related_name = 'favorite'
 
 
-class ShoppingList(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='shopping_list',
-        verbose_name='User',
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='shopping_list',
-        verbose_name='Recipe',
-    )
+class ShoppingList(UserRecipeBaseModel):
 
-    class Meta:
+    class Meta(UserRecipeBaseModel.Meta):
         verbose_name = 'Shopping list'
         verbose_name_plural = 'Shopping lists'
         default_related_name = 'shopping_list'

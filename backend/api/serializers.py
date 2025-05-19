@@ -266,7 +266,7 @@ class SubscriberDetailSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        return Follow.objects.filter(author=obj.author, user=user).exists()
+        return Follow.objects.filter(author=obj, user=user).exists()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -276,13 +276,13 @@ class SubscriberDetailSerializer(serializers.ModelSerializer):
         except ValueError:
             pass
         return ShortRecipeSerializer(
-            Recipe.objects.filter(author=obj.author)[:limit],
+            Recipe.objects.filter(author=obj)[:limit],
             many=True,
             context={'request': request},
         ).data
 
     def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj.author).count()
+        return Recipe.objects.filter(author=obj).count()
 
 
 class SubscriberSerializer(serializers.ModelSerializer):
@@ -308,37 +308,8 @@ class SubscriberSerializer(serializers.ModelSerializer):
             )
         return data
 
-
-class FavoriteRecipeSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
-    def validate(self, data):
-        request = self.context.get('request')
-        recipe_id = (
-            self.context.get('request').parser_context.get('kwargs').get('id')
-        )
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        if ShoppingList.objects.filter(
-            recipe=recipe,
-            user=request.user
-        ).exists():
-            raise serializers.ValidationError(
-                f'Recipe "{recipe.name}" was already added '
-                'to shopping list.'
-            )
-        if Favorite.objects.filter(
-            recipe=recipe,
-            user=request.user
-        ).exists():
-            raise serializers.ValidationError(
-                f'Recipe "{recipe.name}" was already added '
-                'to favorites.'
-            )
-        return data
+    def to_representation(self, instance):
+        return SubscriberDetailSerializer(instance, context=self.context).data
 
 
 class UserRecipeDependenceSerializer(serializers.ModelSerializer):

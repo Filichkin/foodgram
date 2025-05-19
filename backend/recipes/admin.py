@@ -1,19 +1,19 @@
 from django.contrib import admin
 
-from foodgram.constants import INLINE_EXTRA
+from foodgram.constants import INLINE_EXTRA, MIN_NUM
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
 class RecipeIngredientsInLine(admin.TabularInline):
     model = RecipeIngredient
     extra = INLINE_EXTRA
-    min_num = 1
+    min_num = MIN_NUM
 
 
 class RecipeTagsInLine(admin.TabularInline):
     model = Recipe.tags.through
     extra = INLINE_EXTRA
-    min_num = 1
+    min_num = MIN_NUM
 
 
 @admin.register(Ingredient)

@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
 from djoser.views import UserViewSet
-from rest_framework import filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -13,7 +12,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 
-from api.filters import RecipeFilter
+from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomLimitPagination
 from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers import (
@@ -127,7 +126,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (AllowAny,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
 
 

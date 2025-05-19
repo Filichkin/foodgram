@@ -78,3 +78,5 @@ docker compose exec backend python manage.py csv_upload
 
 
 
+
+

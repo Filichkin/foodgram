@@ -4,6 +4,17 @@
 
 Веб-приложение, где пользователи могут делиться рецептами, подписываться на авторов, сохранять рецепты в избранное и формировать список покупок. Проект реализован с чистой архитектурой и развёрнут в Docker-контейнерах.
 
+<img src="foodgram.png" width="800" height: auto>
+
+## Стек технологий
+
+![Django](https://img.shields.io/badge/Django-092E20?logo=django&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?logo=postgresql&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
+![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
+
 ## Основные функции
 
 - Регистрация и аутентификация пользователей
@@ -12,14 +23,6 @@
 - Подписка на других пользователей
 - Формирование списка покупок
 - Поиск рецептов по тегам и ингредиентам
-
-## Технологии
-
-- Python 3.12
-- Django 5.0.14
-- Django REST Framework 3.5.2
-- PostgreSQL
-- Docker
 
 ## Установка
 
